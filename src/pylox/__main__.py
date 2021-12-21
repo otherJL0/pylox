@@ -1,7 +1,18 @@
 import argparse
+import readline
+from pathlib import Path
 
 
 def repl() -> None:
+    histfile = Path.home() / ".pylox_history"
+    try:
+        readline.read_history_file(histfile)
+        # default history len is -1 (infinite), which may grow unruly
+        readline.set_history_length(1000)
+    except FileNotFoundError:
+        readline.write_history_file(histfile)
+
+    readline.set_auto_history(True)
     print("Pylox repl")
     while True:
         match input(">>> "):
