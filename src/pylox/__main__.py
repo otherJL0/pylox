@@ -1,5 +1,4 @@
-import sys
-from typing import Sequence
+import argparse
 
 
 def repl() -> None:
@@ -25,19 +24,25 @@ def run_script(pylox_script: str) -> None:
         print(f"No such file: {pylox_script}")
 
 
-def main(cli_args: Sequence[str]) -> None:
-    match len(cli_args):
-        case 0:
+def main(cli_args: argparse.Namespace) -> None:
+    match vars(cli_args):
+        case {"script": None, "interactive": None}:
             repl()
-        case 1:
-            run_script(cli_args[0])
+        case {"script": _, "interactive": None}:
+            run_script(cli_args.script)
+        case {"script": None, "interactive": _}:
+            print("TODO: Run script then activate repl")
+            repl()
         case _:
             print("Usage: pylox [script]")
 
 
 def entrypoint() -> None:
-    main(sys.argv[1:])
+    parser = argparse.ArgumentParser("Pylox Interpreter")
+    parser.add_argument("script", nargs="?", type=str)
+    parser.add_argument("-i", "--interactive", type=str)
+    main(parser.parse_args())
 
 
 if __name__ == "__main__":  # pragma: no cover
-    main(sys.argv[1:])
+    entrypoint()
