@@ -1,6 +1,15 @@
 import argparse
 import readline
+import sys
 from pathlib import Path
+
+
+def report(line: int, where: str, message: str) -> None:
+    print(f"[line {line}] Error {where}: {message}", file=sys.stderr)
+
+
+def error(line: int, message: str) -> None:
+    report(line, "", message)
 
 
 def repl() -> None:
@@ -56,7 +65,3 @@ def entrypoint() -> None:
     parser.add_argument("script", nargs="?", type=str)
     parser.add_argument("-i", "--interactive", type=str)
     main(parser.parse_args())
-
-
-if __name__ == "__main__":  # pragma: no cover
-    entrypoint()
