@@ -94,32 +94,38 @@ class Scanner:
             # Ignore whitespace
             case " " | "\r" | "\t":
                 pass
+
+            # Increment line count
             case "\n":
                 self.line += 1
+
+            # Handle string literals
+            case '"':
+                self._consume_string()
             case _:
                 error(self.line, "Unexpected character")
 
     def _is_at_end(self) -> bool:
-        ''' Check if all characters in `self.source` have been consumed '''
+        """Check if all characters in `self.source` have been consumed"""
         return self.current >= len(self.source)
 
     def _advance(self) -> str:
-        ''' Proceed and consume next character '''
+        """Proceed and consume next character"""
         next_char = self.source[self.current]
         self.current += 1
         return next_char
 
     def _add_token(self, type: TokenType, literal: object = None) -> None:
-        ''' Helper function to append token to self.tokens
+        """Helper function to append token to self.tokens
 
         :type: TokenType
         :literal: object
-        '''
+        """
         text = self.source[self.start : self.current]
         self.tokens.append(Token(type, text, literal, self.line))
 
     def _match(self, expected: str) -> bool:
-        ''' Check if next character in self.source is an expected character '''
+        """Check if next character in self.source is an expected character"""
         if self._is_at_end():
             return False
         if self.source[self.current] != expected:
@@ -129,7 +135,43 @@ class Scanner:
         return True
 
     def _peek(self) -> str:
-        ''' Look at next character without consuming the character '''
+        """Look at next character without consuming the character"""
         if self._is_at_end():
             return "\0"
         return self.source[self.current]
+
+    def _consume_string(self) -> None:
+        while self._peek() != '"' and not self._is_at_end():
+            if self._peek() == "\n":
+                self.line += 1
+            self._advance()
+
+        if self._is_at_end():
+            # String is missing terminal '"'
+            error(self.line, "Unterminated string")
+            return
+
+        # Otherwise, next character is '"'
+        self._advance()
+
+        # Trim the surrounding '"' characters around string literal
+        value: str = self.source[self.start + 1 : self.current - 1]
+        self._add_token(TokenType.STRING, value)
+
+    def _peek_next(self) -> str:
+        if self.current + 1 >= len(self.source):
+            return "\0"
+        return self.source[self.current + 1]
+
+    def _consume_numbber(self) -> None:
+        while self._peek().isdigit():
+            self._advance()
+
+        if self._peek() == "." and self._peek_next().isdigit():
+            # Consume the "."
+            self._advance()
+            # Consume all digits after the "."
+            while self._peek().isdigit():
+                self._advance()
+
+        self._add_token(TokenType.NUMBER, float(self.source[self.start : self.current]))
