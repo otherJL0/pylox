@@ -8,7 +8,7 @@ class TokenType(Enum):
     RIGHT_PAREN = auto()
     LEFT_BRACE = auto()
     RIGHT_BRACE = auto()
-    COMMA = auto(),
+    COMMA = (auto(),)
     DOT = auto()
     MINUS = auto()
     PLUS = auto()
@@ -48,6 +48,7 @@ class TokenType(Enum):
     TRUE = auto()
     VAR = auto()
     WHILE = auto()
+    EOF = auto()
 
 
 @dataclass
