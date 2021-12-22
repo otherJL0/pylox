@@ -32,7 +32,7 @@ class Scanner:
         self.line: int = 1
 
     def scan_tokens(self) -> List[Token]:
-        while self.current < len(self.source):
+        while not self._is_at_end():
             self.start = self.current
             self.scan_token()
 
@@ -40,98 +40,48 @@ class Scanner:
         return self.tokens
 
     def scan_token(self) -> None:
-        c: str = self.source[self.current]
-        self.current += 1
+        c: str = self._advance()
         match c:
             case "(":
-                self.tokens.append(
-                    Token(
-                        TokenType.LEFT_PAREN,
-                        self.source[self.start : self.current],
-                        None,
-                        self.line,
-                    )
-                )
+                self._add_token(TokenType.LEFT_PAREN)
             case ")":
-                self.tokens.append(
-                    Token(
-                        TokenType.RIGHT_PAREN,
-                        self.source[self.start : self.current],
-                        None,
-                        self.line,
-                    )
-                )
+                self._add_token(TokenType.RIGHT_PAREN)
             case "{":
-                self.tokens.append(
-                    Token(
-                        TokenType.LEFT_BRACE,
-                        self.source[self.start : self.current],
-                        None,
-                        self.line,
-                    )
-                )
+                self._add_token(TokenType.LEFT_BRACE)
             case "}":
-                self.tokens.append(
-                    Token(
-                        TokenType.RIGHT_BRACE,
-                        self.source[self.start : self.current],
-                        None,
-                        self.line,
-                    )
-                )
+                self._add_token(TokenType.RIGHT_BRACE)
             case ",":
-                self.tokens.append(
-                    Token(
-                        TokenType.COMMA,
-                        self.source[self.start : self.current],
-                        None,
-                        self.line,
-                    )
-                )
+                self._add_token(TokenType.COMMA)
             case ".":
-                self.tokens.append(
-                    Token(
-                        TokenType.DOT,
-                        self.source[self.start : self.current],
-                        None,
-                        self.line,
-                    )
-                )
+                self._add_token(TokenType.DOT)
             case "-":
-                self.tokens.append(
-                    Token(
-                        TokenType.MINUS,
-                        self.source[self.start : self.current],
-                        None,
-                        self.line,
-                    )
-                )
+                self._add_token(TokenType.MINUS)
             case "+":
-                self.tokens.append(
-                    Token(
-                        TokenType.PLUS,
-                        self.source[self.start : self.current],
-                        None,
-                        self.line,
-                    )
-                )
+                self._add_token(TokenType.PLUS)
             case ";":
-                self.tokens.append(
-                    Token(
-                        TokenType.SEMICOLON,
-                        self.source[self.start : self.current],
-                        None,
-                        self.line,
-                    )
-                )
+                self._add_token(TokenType.SEMICOLON)
             case "*":
-                self.tokens.append(
-                    Token(
-                        TokenType.STAR,
-                        self.source[self.start : self.current],
-                        None,
-                        self.line,
-                    )
-                )
+                self._add_token(TokenType.STAR)
             case _:
                 error(self.line, "Unexpected character")
+
+    def _is_at_end(self) -> bool:
+        return self.current >= len(self.source)
+
+    def _advance(self) -> str:
+        next_char = self.source[self.current]
+        self.current += 1
+        return next_char
+
+    def _add_token(self, type: TokenType, literal: object = None) -> None:
+        text = self.source[self.start : self.current]
+        self.tokens.append(Token(type, text, literal, self.line))
+
+    def _match(self, expected: str) -> bool:
+        if self._is_at_end():
+            return False
+        if self.source[self.current] != expected:
+            return False
+
+        self.current += 1
+        return True
