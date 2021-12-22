@@ -14,16 +14,19 @@ def repl() -> None:
 
     readline.set_auto_history(True)
     print("Pylox repl")
-    while True:
-        match input(">>> "):
-            case "":
-                break
-            case "exit":
-                print("Use exit() to exit")
-            case "exit()":
-                break
-            case _:
-                print("User input")
+    try:
+        while True:
+            match input(">>> "):
+                case "":
+                    break
+                case "exit":
+                    print("Use exit() to exit")
+                case "exit()":
+                    break
+                case _:
+                    print("User input")
+    except (EOFError, KeyboardInterrupt):
+        print("\nShutting down...")
 
 
 def run_script(pylox_script: str) -> None:
