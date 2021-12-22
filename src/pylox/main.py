@@ -1,15 +1,8 @@
 import argparse
 import readline
-import sys
 from pathlib import Path
 
-
-def report(line: int, where: str, message: str) -> None:
-    print(f"[line {line}] Error {where}: {message}", file=sys.stderr)
-
-
-def error(line: int, message: str) -> None:
-    report(line, "", message)
+from pylox.scanner import Scanner
 
 
 def repl() -> None:
@@ -42,9 +35,14 @@ def run_script(pylox_script: str) -> None:
     try:
         with open(pylox_script, "rb") as pylox_file:
             bytes = pylox_file.read()
-        print(bytes)
+
+        scanner = Scanner(str(bytes))
+        tokens = scanner.scan_tokens()
+        for token in tokens:
+            print(token)
     except FileNotFoundError:
         print(f"No such file: {pylox_script}")
+
 
 
 def main(cli_args: argparse.Namespace) -> None:

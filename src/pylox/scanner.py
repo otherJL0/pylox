@@ -1,28 +1,38 @@
+import sys
 from typing import List
 
-from pylox.main import error
 from pylox.tokens import Token, TokenType
 
+RESERVED = {
+    "and": TokenType.AND,
+    "class": TokenType.CLASS,
+    "else": TokenType.ELSE,
+    "false": TokenType.FALSE,
+    "for": TokenType.FOR,
+    "fun": TokenType.FUN,
+    "if": TokenType.IF,
+    "nil": TokenType.NIL,
+    "or": TokenType.OR,
+    "print": TokenType.PRINT,
+    "return": TokenType.RETURN,
+    "super": TokenType.SUPER,
+    "this": TokenType.THIS,
+    "true": TokenType.TRUE,
+    "var": TokenType.VAR,
+    "while": TokenType.WHILE,
+}
 
 class Scanner:
-    keywords = {
-        "and": TokenType.AND,
-        "class": TokenType.CLASS,
-        "else": TokenType.ELSE,
-        "false": TokenType.FALSE,
-        "for": TokenType.FOR,
-        "fun": TokenType.FUN,
-        "if": TokenType.IF,
-        "nil": TokenType.NIL,
-        "or": TokenType.OR,
-        "print": TokenType.PRINT,
-        "return": TokenType.RETURN,
-        "super": TokenType.SUPER,
-        "this": TokenType.THIS,
-        "true": TokenType.TRUE,
-        "var": TokenType.VAR,
-        "while": TokenType.WHILE,
-    }
+    @staticmethod
+    def report(line: int, where: str, message: str) -> None:
+        print(f"[line {line}] Error {where}: {message}", file=sys.stderr)
+
+
+    @staticmethod
+    def error(line: int, message: str) -> None:
+        Scanner.report(line, "", message)
+
+
 
     def __init__(self, source: str) -> None:
         self.source = source
@@ -102,8 +112,15 @@ class Scanner:
             # Handle string literals
             case '"':
                 self._consume_string()
+
+            # Default case handles numeric literals, reserved words, and errors
             case _:
-                error(self.line, "Unexpected character")
+                if c.isdigit():
+                    self._consume_number()
+                elif c.isalpha():
+                    self._consume_reserved()
+                else:
+                    Scanner.error(self.line, "Unexpected character")
 
     def _is_at_end(self) -> bool:
         """Check if all characters in `self.source` have been consumed"""
@@ -148,7 +165,7 @@ class Scanner:
 
         if self._is_at_end():
             # String is missing terminal '"'
-            error(self.line, "Unterminated string")
+            Scanner.error(self.line, "Unterminated string")
             return
 
         # Otherwise, next character is '"'
@@ -163,7 +180,7 @@ class Scanner:
             return "\0"
         return self.source[self.current + 1]
 
-    def _consume_numbber(self) -> None:
+    def _consume_number(self) -> None:
         while self._peek().isdigit():
             self._advance()
 
@@ -175,3 +192,13 @@ class Scanner:
                 self._advance()
 
         self._add_token(TokenType.NUMBER, float(self.source[self.start : self.current]))
+
+    def _consume_reserved(self) -> None:
+        while self._peek().isalnum():
+            self._advance()
+
+        text: str = self.source[self.start:self.current]
+        try:
+            self._add_token(RESERVED[text])
+        except KeyError:
+            self._add_token(TokenType.IDENTIFIER)
