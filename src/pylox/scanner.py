@@ -42,6 +42,7 @@ class Scanner:
     def scan_token(self) -> None:
         c: str = self._advance()
         match c:
+            # Simple single character matches
             case "(":
                 self._add_token(TokenType.LEFT_PAREN)
             case ")":
@@ -62,22 +63,63 @@ class Scanner:
                 self._add_token(TokenType.SEMICOLON)
             case "*":
                 self._add_token(TokenType.STAR)
+
+            # Match the current character and the next character to determine token
+            case "!":
+                self._add_token(
+                    TokenType.BANG_EQUAL if self._match("=") else TokenType.BANG
+                )
+            case "=":
+                self._add_token(
+                    TokenType.EQUAL_EQUAL if self._match("=") else TokenType.EQUAL
+                )
+            case "<":
+                self._add_token(
+                    TokenType.LESS_EQUAL if self._match("=") else TokenType.LESS
+                )
+            case ">":
+                self._add_token(
+                    TokenType.GREATER_EQUAL if self._match("=") else TokenType.GREATER
+                )
+
+            # Slash character can either be a slash or a comment
+            case "/":
+                if self._match("/"):
+                    # Advance through comment without adding token
+                    while self._peek() != "\n" and not self._is_at_end():
+                        self._advance()
+                else:
+                    self._add_token(TokenType.SLASH)
+
+            # Ignore whitespace
+            case " " | "\r" | "\t":
+                pass
+            case "\n":
+                self.line += 1
             case _:
                 error(self.line, "Unexpected character")
 
     def _is_at_end(self) -> bool:
+        ''' Check if all characters in `self.source` have been consumed '''
         return self.current >= len(self.source)
 
     def _advance(self) -> str:
+        ''' Proceed and consume next character '''
         next_char = self.source[self.current]
         self.current += 1
         return next_char
 
     def _add_token(self, type: TokenType, literal: object = None) -> None:
+        ''' Helper function to append token to self.tokens
+
+        :type: TokenType
+        :literal: object
+        '''
         text = self.source[self.start : self.current]
         self.tokens.append(Token(type, text, literal, self.line))
 
     def _match(self, expected: str) -> bool:
+        ''' Check if next character in self.source is an expected character '''
         if self._is_at_end():
             return False
         if self.source[self.current] != expected:
@@ -85,3 +127,9 @@ class Scanner:
 
         self.current += 1
         return True
+
+    def _peek(self) -> str:
+        ''' Look at next character without consuming the character '''
+        if self._is_at_end():
+            return "\0"
+        return self.source[self.current]
