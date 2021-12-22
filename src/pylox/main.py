@@ -34,9 +34,9 @@ def repl() -> None:
 def run_script(pylox_script: str) -> None:
     try:
         with open(pylox_script, "rb") as pylox_file:
-            bytes = pylox_file.read()
+            contents = pylox_file.read().decode('utf-8')
 
-        scanner = Scanner(str(bytes))
+        scanner = Scanner(contents)
         tokens = scanner.scan_tokens()
         for token in tokens:
             print(token)
