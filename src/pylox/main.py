@@ -34,7 +34,7 @@ def repl() -> None:
 def run_script(pylox_script: str) -> None:
     try:
         with open(pylox_script, "rb") as pylox_file:
-            contents = pylox_file.read().decode('utf-8')
+            contents = pylox_file.read().decode("utf-8")
 
         scanner = Scanner(contents)
         tokens = scanner.scan_tokens()
@@ -42,7 +42,6 @@ def run_script(pylox_script: str) -> None:
             print(token)
     except FileNotFoundError:
         print(f"No such file: {pylox_script}")
-
 
 
 def main(cli_args: argparse.Namespace) -> None:

@@ -22,17 +22,15 @@ RESERVED = {
     "while": TokenType.WHILE,
 }
 
+
 class Scanner:
     @staticmethod
     def report(line: int, where: str, message: str) -> None:
         print(f"[line {line}] Error {where}: {message}", file=sys.stderr)
 
-
     @staticmethod
     def error(line: int, message: str) -> None:
         Scanner.report(line, "", message)
-
-
 
     def __init__(self, source: str) -> None:
         self.source = source
@@ -197,7 +195,7 @@ class Scanner:
         while self._peek().isalnum():
             self._advance()
 
-        text: str = self.source[self.start:self.current]
+        text: str = self.source[self.start : self.current]
         try:
             self._add_token(RESERVED[text])
         except KeyError:
