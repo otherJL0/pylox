@@ -16,7 +16,17 @@ Source = "https://github.com/otherJL0/pylox"
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov", "coverage[toml]"]
-dev = ["mypy", "black", "isort", "pylint", "pip-tools", "pre-commit", "flit"]
+dev = [
+  "mypy",
+  "black",
+  "isort",
+  "pylint",
+  "pip-tools",
+  "pre-commit",
+  "flit",
+  "thx",
+]
+profile = ["memray", "scalene"]
 
 [project.scripts]
 lox = "lox:main"
