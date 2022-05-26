@@ -4,29 +4,19 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "pylox"
-authors = [{ name = "Jonathan Lopez", email = "jolopez@mediaocean.com" }]
+authors = [{ name = "Jonathan Lopez", email = "jonathanglopez@gmail.com" }]
 requires-python = ">=3.10"
-version = "0.1.0"
-description = "A toy interpreter for the Lox programming language"
 readme = "README.md"
+dynamic = ["version", "description"]
+dependencies = ["typer[all]", "rich"]
 classifiers = ["License :: OSI Approved :: MIT License"]
 
 [project.urls]
 Source = "https://github.com/otherJL0/pylox"
 
 [project.optional-dependencies]
-dev = [
-    "pytest",
-    "pytest-cov",
-    "coverage[toml]",
-    "mypy",
-    "black",
-    "isort",
-    "pylint",
-    "pip-tools",
-    "pre-commit",
-    "flit",
-]
+test = ["pytest", "pytest-cov", "coverage[toml]"]
+dev = ["mypy", "black", "isort", "pylint", "pip-tools", "pre-commit", "flit"]
 
 [project.scripts]
 lox = "lox:main"
