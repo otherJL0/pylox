@@ -1,32 +1,22 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "pylox"
-authors = [{ name = "Jonathan Lopez", email = "jonathanglopez@gmail.com" }]
-requires-python = ">=3.10"
+version = "0.1.0"
+description = "Add your description here"
 readme = "README.md"
-dynamic = ["version", "description"]
-dependencies = ["typer[all]", "rich"]
-classifiers = ["License :: OSI Approved :: MIT License"]
-
-[project.urls]
-Source = "https://github.com/otherJL0/pylox"
-
-[project.optional-dependencies]
-test = ["pytest", "pytest-cov", "coverage[toml]"]
-dev = [
-  "mypy",
-  "black",
-  "isort",
-  "pylint",
-  "pip-tools",
-  "pre-commit",
-  "flit",
-  "thx",
-]
-profile = ["memray", "scalene"]
+requires-python = ">=3.13"
+dependencies = ["networkx>=3.4.2", "rich>=13.9.3"]
 
 [project.scripts]
-lox = "lox:main"
+pylox = "pylox:main"
+
+[tool.uv]
+dev-dependencies = [
+  "ipython>=8.29.0",
+  "memray>=1.14.0",
+  "pytest>=8.3.3",
+  "ruff>=0.7.1",
+]
