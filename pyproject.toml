@@ -16,7 +16,10 @@ pylox = "pylox:main"
 [tool.uv]
 dev-dependencies = [
   "ipython>=8.29.0",
-  "memray>=1.14.0",
   "pytest>=8.3.3",
   "ruff>=0.7.1",
 ]
+
+[tool.basedpyright]
+pythonVersion = "3.13"
+extraPaths = ["./src/", "./.venv/lib/python3.13/site-packages/"]
