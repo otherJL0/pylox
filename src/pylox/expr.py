@@ -24,16 +24,16 @@ class Binary(Expr):
 
     @override
     def accept(self, visitor: "Visitor[T]") -> T:
-        return visitor.visit_binary_expression(self)
+        return visitor.visit_binary_expr(self)
 
 
 @dataclass(frozen=True, slots=True)
 class Grouping(Expr):
-    expression: Expr
+    expr: Expr
 
     @override
     def accept(self, visitor: "Visitor[T]") -> T:
-        return visitor.visit_grouping_expression(self)
+        return visitor.visit_grouping_expr(self)
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,7 +42,7 @@ class Literal(Expr):
 
     @override
     def accept(self, visitor: "Visitor[T]") -> T:
-        return visitor.visit_literal_expression(self)
+        return visitor.visit_literal_expr(self)
 
 
 @dataclass(frozen=True, slots=True)
@@ -52,88 +52,84 @@ class Unary(Expr):
 
     @override
     def accept(self, visitor: "Visitor[T]") -> T:
-        return visitor.visit_unary_expression(self)
+        return visitor.visit_unary_expr(self)
 
 
 class Visitor[T](ABC):
     @abstractmethod
-    def visit_binary_expression(self, expression: Binary) -> T:
+    def visit_binary_expr(self, expr: Binary) -> T:
         pass
 
     @abstractmethod
-    def visit_grouping_expression(self, expression: Grouping) -> T:
+    def visit_grouping_expr(self, expr: Grouping) -> T:
         pass
 
     @abstractmethod
-    def visit_literal_expression(self, expression: Literal) -> T:
+    def visit_literal_expr(self, expr: Literal) -> T:
         pass
 
     @abstractmethod
-    def visit_unary_expression(self, expression: Unary) -> T:
+    def visit_unary_expr(self, expr: Unary) -> T:
         pass
 
 
 class AstPrinter(Visitor[str]):
-    def print(self, expression: Expr) -> str:
-        return expression.accept(self)
+    def print(self, expr: Expr) -> str:
+        return expr.accept(self)
 
-    def parenthesize(self, name: str, *expressions: Expr) -> str:
-        return f"({name} {" ".join(expression.accept(self) for expression in expressions)})"
-
-    @override
-    def visit_binary_expression(self, expression: Binary) -> str:
-        return self.parenthesize(
-            expression.operator.lexeme, expression.left, expression.right
-        )
+    def parenthesize(self, name: str, *exprs: Expr) -> str:
+        return f"({name} {" ".join(expr.accept(self) for expr in exprs)})"
 
     @override
-    def visit_grouping_expression(self, expression: Grouping) -> str:
-        return self.parenthesize("group", expression.expression)
+    def visit_binary_expr(self, expr: Binary) -> str:
+        return self.parenthesize(expr.operator.lexeme, expr.left, expr.right)
 
     @override
-    def visit_literal_expression(self, expression: Literal) -> str:
-        return "nil" if expression.value is None else str(expression.value)
+    def visit_grouping_expr(self, expr: Grouping) -> str:
+        return self.parenthesize("group", expr.expr)
 
     @override
-    def visit_unary_expression(self, expression: Unary) -> str:
-        return self.parenthesize(expression.operator.lexeme, expression.right)
+    def visit_literal_expr(self, expr: Literal) -> str:
+        return "nil" if expr.value is None else str(expr.value)
+
+    @override
+    def visit_unary_expr(self, expr: Unary) -> str:
+        return self.parenthesize(expr.operator.lexeme, expr.right)
 
 
 class RichTreePrinter(Visitor[Tree]):
-    def print(self, expression: Expr) -> Tree:
-        return expression.accept(self)
+    def print(self, expr: Expr) -> Tree:
+        return expr.accept(self)
 
-    def treeify(self, name: str, *expressions: Expr) -> Tree:
+    def treeify(self, name: str, *exprs: Expr) -> Tree:
         tree = Tree(name)
-        for expression in expressions:
-            _ = tree.add(expression.accept(self))
+        for expr in exprs:
+            _ = tree.add(expr.accept(self))
         return tree
 
     @override
-    def visit_binary_expression(self, expression: Binary) -> Tree:
-        return self.treeify(
-            expression.operator.lexeme, expression.left, expression.right
-        )
+    def visit_binary_expr(self, expr: Binary) -> Tree:
+        return self.treeify(expr.operator.lexeme, expr.left, expr.right)
 
     @override
-    def visit_grouping_expression(self, expression: Grouping) -> Tree:
-        return self.treeify("group", expression.expression)
+    def visit_grouping_expr(self, expr: Grouping) -> Tree:
+        return self.treeify("group", expr.expr)
 
     @override
-    def visit_literal_expression(self, expression: Literal) -> Tree:
-        return Tree("nil" if expression.value is None else str(expression.value))
+    def visit_literal_expr(self, expr: Literal) -> Tree:
+        return Tree("nil" if expr.value is None else str(expr.value))
 
     @override
-    def visit_unary_expression(self, expression: Unary) -> Tree:
-        return self.treeify(expression.operator.lexeme, expression.right)
+    def visit_unary_expr(self, expr: Unary) -> Tree:
+        return self.treeify(expr.operator.lexeme, expr.right)
 
 
 if __name__ == "__main__":
     from pylox.token import TokenType
 
-    expression = Binary(
+    expr = Binary(
         left=Unary(Token(TokenType.MINUS, "-", None, 1), Literal(123)),
         operator=Token(TokenType.STAR, "*", None, 1),
         right=Grouping(Literal(45.87)),
     )
-    result = AstPrinter().print(expression)
+    result = AstPrinter().print(expr)
