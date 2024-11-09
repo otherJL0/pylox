@@ -53,7 +53,12 @@ def run_prompt() -> None:
             else:
                 tree = Tree("Detected Tokens:")
                 for token in tokens:
-                    _ = tree.add(token.token_type.name)
+                    suffix = (
+                        f": {token.lexeme}"
+                        if token.token_type == TokenType.IDENTIFIER
+                        else ""
+                    )
+                    _ = tree.add(f"{token.token_type.name}{suffix}")
                 console.print(
                     Panel(
                         tree,
