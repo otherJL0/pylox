@@ -2,9 +2,11 @@ import argparse
 from typing import TextIO, cast, override
 
 from rich.console import Console
+from rich.panel import Panel
 from rich.prompt import PromptBase
 from rich.tree import Tree
 
+from pylox.expr import RichTreePrinter
 from pylox.interpreter import Interpreter
 from pylox.parser import Parser
 from pylox.scanner import Scanner
@@ -29,14 +31,37 @@ def run_prompt() -> None:
                 return
             parser = Parser(tokens)
             if expr := parser.parse():
+                expr_tree = RichTreePrinter().print(expr)
+                console.print(
+                    Panel(
+                        expr_tree,
+                        title="Expression Tree",
+                        style="cyan",
+                        subtitle=f"`{line.source}`",
+                    )
+                )
                 interpreter = Interpreter()
                 result = interpreter.evaluate(expr)
-                console.print(result)
+                console.print(
+                    Panel(
+                        str(result),
+                        title="Result",
+                        style="green",
+                        subtitle=f"`{line.source}`",
+                    )
+                )
             else:
-                tree = Tree(f"Could not parse `{line.source}`")
+                tree = Tree("Detected Tokens:")
                 for token in tokens:
                     _ = tree.add(token.token_type.name)
-                console.print(tree)
+                console.print(
+                    Panel(
+                        tree,
+                        title="Parsing Error",
+                        style="red",
+                        subtitle=f"`{line.source}`",
+                    )
+                )
         except (EOFError, KeyboardInterrupt):
             return
 
