@@ -4,6 +4,9 @@ from typing import TextIO, cast, override
 from rich.console import Console
 from rich.prompt import PromptBase
 from rich.tree import Tree
+
+from pylox.expr import RichTreePrinter
+from pylox.parser import Parser
 from pylox.scanner import Scanner
 from pylox.token import TokenType
 
@@ -24,10 +27,15 @@ def run_prompt() -> None:
             tokens = line.scan_tokens()
             if tokens[0].token_type == TokenType.EXIT:
                 return
-            tree = Tree(line.source)
-            for token in tokens:
-                _ = tree.add(str(token))
-            console.print(tree)
+            parser = Parser(tokens)
+            if expr := parser.parse():
+                output = RichTreePrinter().print(expr)
+                console.print(output)
+            else:
+                tree = Tree(f"Could not parse `{line.source}`")
+                for token in tokens:
+                    _ = tree.add(token.token_type.name)
+                console.print(tree)
         except (EOFError, KeyboardInterrupt):
             return
 
