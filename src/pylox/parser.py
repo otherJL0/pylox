@@ -126,7 +126,9 @@ class Parser:
                 return literal_expr
             case TokenType.LEFT_PAREN:
                 _ = self.advance()
-                return Literal(True)
+                expr = self.expression()
+                _ = self.consume(TokenType.RIGHT_PAREN, "Expected ')' after expression")
+                return Grouping(expr)
             case _:
                 raise RuntimeError("No token found")
 
