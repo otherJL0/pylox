@@ -101,27 +101,32 @@ class RichTreePrinter(Visitor[Tree]):
     def print(self, expr: Expr) -> Tree:
         return expr.accept(self)
 
-    def treeify(self, name: str, *exprs: Expr) -> Tree:
-        tree = Tree(name)
-        for expr in exprs:
-            _ = tree.add(expr.accept(self))
+    @override
+    def visit_binary_expr(self, expr: Binary) -> Tree:
+        tree = Tree("BinaryExpr")
+        operator = tree.add(expr.operator.token_type.name)
+        _ = operator.add(expr.left.accept(self))
+        _ = operator.add(expr.right.accept(self))
         return tree
 
     @override
-    def visit_binary_expr(self, expr: Binary) -> Tree:
-        return self.treeify(expr.operator.lexeme, expr.left, expr.right)
-
-    @override
     def visit_grouping_expr(self, expr: Grouping) -> Tree:
-        return self.treeify("group", expr.expr)
+        tree = Tree("GroupingExpr")
+        _ = tree.add(expr.expr.accept(self))
+        return tree
 
     @override
     def visit_literal_expr(self, expr: Literal) -> Tree:
-        return Tree("nil" if expr.value is None else str(expr.value))
+        tree = Tree("LiteralExpr")
+        _ = tree.add("nil" if expr.value is None else str(expr.value))
+        return tree
 
     @override
     def visit_unary_expr(self, expr: Unary) -> Tree:
-        return self.treeify(expr.operator.lexeme, expr.right)
+        tree = Tree("UnaryExpr")
+        operator = tree.add(expr.operator.token_type.name)
+        _ = operator.add(expr.right.accept(self))
+        return tree
 
 
 if __name__ == "__main__":
