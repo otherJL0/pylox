@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.prompt import PromptBase
 from rich.tree import Tree
 
-from pylox.expr import RichTreePrinter
+from pylox.interpreter import Interpreter
 from pylox.parser import Parser
 from pylox.scanner import Scanner
 from pylox.token import TokenType
@@ -29,8 +29,9 @@ def run_prompt() -> None:
                 return
             parser = Parser(tokens)
             if expr := parser.parse():
-                output = RichTreePrinter().print(expr)
-                console.print(output)
+                interpreter = Interpreter()
+                result = interpreter.evaluate(expr)
+                console.print(result)
             else:
                 tree = Tree(f"Could not parse `{line.source}`")
                 for token in tokens:
