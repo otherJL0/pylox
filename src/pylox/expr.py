@@ -1,18 +1,15 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TypeVar, override
+from typing import Any, override
 
 from rich.tree import Tree
 
 from pylox.token import Token
 
-type LiteralType = str | int | float
-T = TypeVar("T")
-
 
 class Expr(ABC):
     @abstractmethod
-    def accept(self, visitor: "Visitor[T]") -> T:
+    def accept[T](self, visitor: "Visitor[T]") -> T:
         pass
 
 
@@ -23,7 +20,7 @@ class Binary(Expr):
     right: Expr
 
     @override
-    def accept(self, visitor: "Visitor[T]") -> T:
+    def accept[T](self, visitor: "Visitor[T]") -> T:
         return visitor.visit_binary_expr(self)
 
 
@@ -32,16 +29,16 @@ class Grouping(Expr):
     expr: Expr
 
     @override
-    def accept(self, visitor: "Visitor[T]") -> T:
+    def accept[T](self, visitor: "Visitor[T]") -> T:
         return visitor.visit_grouping_expr(self)
 
 
 @dataclass(frozen=True, slots=True)
 class Literal(Expr):
-    value: LiteralType | None
+    value: Any | None
 
     @override
-    def accept(self, visitor: "Visitor[T]") -> T:
+    def accept[T](self, visitor: "Visitor[T]") -> T:
         return visitor.visit_literal_expr(self)
 
 
@@ -51,7 +48,7 @@ class Unary(Expr):
     right: Expr
 
     @override
-    def accept(self, visitor: "Visitor[T]") -> T:
+    def accept[T](self, visitor: "Visitor[T]") -> T:
         return visitor.visit_unary_expr(self)
 
 
@@ -90,7 +87,15 @@ class AstPrinter(Visitor[str]):
 
     @override
     def visit_literal_expr(self, expr: Literal) -> str:
-        return "nil" if expr.value is None else str(expr.value)
+        match expr.value:
+            case None:
+                return "nil"
+            case str():
+                return expr.value
+            case int() | float():
+                return str(expr.value)
+            case _:
+                return str(expr.value)
 
     @override
     def visit_unary_expr(self, expr: Unary) -> str:
