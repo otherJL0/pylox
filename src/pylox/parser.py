@@ -174,7 +174,8 @@ class Parser:
                 case _:
                     _ = self.advance()
 
-    def parse(self) -> Expr | None:
+    def parse(self) -> list[Stmt]:
         statements: list[Stmt] = []
         while not self.is_at_end:
             statements.append(self.statement())
+        return statements
