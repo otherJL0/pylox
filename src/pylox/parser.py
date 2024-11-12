@@ -38,6 +38,7 @@ class Parser:
         token = self.tokens[self.current]
         match token.token_type:
             case TokenType.PRINT:
+                _ = self.advance()
                 return self.print_statement()
             case _:
                 return self.expression_statement()
