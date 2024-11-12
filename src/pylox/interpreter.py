@@ -1,23 +1,23 @@
 from typing import override
 
-from pylox.expr import Binary, Expr, Grouping, Literal, Unary, Visitor
+import pylox.expr as expr
 from pylox.token import TokenType
 
 
-class Interpreter(Visitor[object]):
-    def evaluate(self, expr: Expr) -> object:
+class Interpreter(expr.Visitor[object]):
+    def evaluate(self, expr: expr.Expr) -> object:
         return expr.accept(self)
 
     @override
-    def visit_literal_expr(self, expr: Literal) -> object:
+    def visit_literal_expr(self, expr: expr.Literal) -> object:
         return expr.value
 
     @override
-    def visit_grouping_expr(self, expr: Grouping) -> object:
+    def visit_grouping_expr(self, expr: expr.Grouping) -> object:
         return self.evaluate(expr.expr)
 
     @override
-    def visit_unary_expr(self, expr: Unary) -> object:
+    def visit_unary_expr(self, expr: expr.Unary) -> object:
         right = self.evaluate(expr.right)
         match (expr.operator.token_type, right):
             case (TokenType.MINUS, float() | int()):
@@ -32,7 +32,7 @@ class Interpreter(Visitor[object]):
                 return None
 
     @override
-    def visit_binary_expr(self, expr: Binary) -> object:
+    def visit_binary_expr(self, expr: expr.Binary) -> object:
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
 

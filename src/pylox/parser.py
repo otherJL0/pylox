@@ -1,4 +1,5 @@
 from pylox.expr import Binary, Expr, Grouping, Literal, Unary
+from pylox.stmt import Expression, Print, Stmt
 from pylox.token import Token, TokenType
 
 
@@ -32,6 +33,24 @@ class Parser:
 
     def expression(self) -> Expr:
         return self.equality()
+
+    def statement(self) -> Stmt:
+        token = self.tokens[self.current]
+        match token.token_type:
+            case TokenType.PRINT:
+                return self.print_statement()
+            case _:
+                return self.expression_statement()
+
+    def print_statement(self) -> Print:
+        value = self.expression()
+        _ = self.consume(TokenType.SEMICOLON, "Expect `;` after value")
+        return Print(value)
+
+    def expression_statement(self) -> Expression:
+        expr = self.expression()
+        _ = self.consume(TokenType.SEMICOLON, "Expect `;` after expression")
+        return Expression(expr)
 
     def equality(self) -> Expr:
         expr = self.comparison()
@@ -155,7 +174,6 @@ class Parser:
                     _ = self.advance()
 
     def parse(self) -> Expr | None:
-        try:
-            return self.expression()
-        except Exception:
-            return None
+        statements: list[Stmt] = []
+        while not self.is_at_end:
+            statements.append(self.statement())
