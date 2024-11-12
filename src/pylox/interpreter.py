@@ -1,12 +1,23 @@
 from typing import override
 
 import pylox.expr as expr
+import pylox.stmt as stmt
 from pylox.token import TokenType
 
 
-class Interpreter(expr.Visitor[object]):
+class Interpreter(expr.Visitor[object], stmt.Visitor[object]):
     def evaluate(self, expr: expr.Expr) -> object:
         return expr.accept(self)
+
+    def execute(self, stmt: stmt.Stmt) -> None:
+        _ = stmt.accept(self)
+
+    def interpret(self, statements: list[stmt.Stmt]) -> None:
+        try:
+            for statement in statements:
+                self.execute(statement)
+        except Exception as e:
+            print(e)
 
     @override
     def visit_literal_expr(self, expr: expr.Literal) -> object:
@@ -65,3 +76,12 @@ class Interpreter(expr.Visitor[object]):
                 return left == right
             case _:
                 return None
+
+    @override
+    def visit_expression_stmt(self, stmt: stmt.Expression) -> None:
+        _ = self.evaluate(stmt.expr)
+
+    @override
+    def visit_print_stmt(self, stmt: stmt.Print) -> None:
+        value = self.evaluate(stmt.expr)
+        print(str(value))
