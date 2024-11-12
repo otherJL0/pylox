@@ -30,18 +30,18 @@ def run_prompt() -> None:
             if tokens[0].token_type == TokenType.EXIT:
                 return
             parser = Parser(tokens)
-            if expr := parser.parse():
-                expr_tree = RichTreePrinter().print(expr)
-                console.print(
-                    Panel(
-                        expr_tree,
-                        title="Expression Tree",
-                        style="cyan",
-                        subtitle=f"`{line.source}`",
-                    )
-                )
+            if statements := parser.parse():
+                # expr_tree = RichTreePrinter().print(expr)
+                # console.print(
+                #     Panel(
+                #         expr_tree,
+                #         title="Expression Tree",
+                #         style="cyan",
+                #         subtitle=f"`{line.source}`",
+                #     )
+                # )
                 interpreter = Interpreter()
-                result = interpreter.evaluate(expr)
+                result = interpreter.interpret(statements)
                 console.print(
                     Panel(
                         str(result),
